@@ -8,6 +8,7 @@
 /*------------------------------------------------------------------------
  *                      IMPORTS
  */
+import { requestChapterText } from "./MapScripApi.js";
 import { DIV_SCRIPTURES } from "./Navigation.js";
 
 /*------------------------------------------------------------------------
@@ -28,6 +29,22 @@ let requestedNextPrevious;
 /*------------------------------------------------------------------------
  *                      PRIVATE HELPERS
  */
+const computeNextPreviousChapter = function (bookId, chapter) {
+    let nextPrev = previousChapter(bookId, chapter);
+
+    if (nextPrev === undefined) {
+        requestedNextPrevious = "";
+    } else {
+        requestedNextPrevious = nextPreviousMarkup(nextPrev, ICON_PREVIOUS);
+    }
+
+    nextPrev = nextChapter(bookId, chapter);
+
+    if (nextPrev !== undefined) {
+        requestedNextPrevious += nextPreviousMarkup(nextPrev, ICON_NEXT);
+    }
+};
+
 const getScripturesSuccess = function (chapterHtml) {
     let book = books[requestedBookId];
 
@@ -120,30 +137,8 @@ const navigateChapter = function (bookId, chapter) {
     requestedBookId = bookId;
     requestedChapter = chapter;
 
-    let nextPrev = previousChapter(bookId, chapter);
-
-    if (nextPrev === undefined) {
-        requestedNextPrevious = "";
-    } else {
-        requestedNextPrevious = nextPreviousMarkup(nextPrev, ICON_PREVIOUS);
-    }
-
-    nextPrev = nextChapter(bookId, chapter);
-
-    if (nextPrev !== undefined) {
-        requestedNextPrevious += nextPreviousMarkup(nextPrev, ICON_NEXT);
-    }
-
-    fetch(encodedScripturesUrlParameters(bookId, chapter))
-        .then(function (response) {
-            if (response.ok) {
-                response.text().then(function (chapterHtml) {
-                    if (typeof getScripturesSuccess === "function") {
-                        getScripturesSuccess(chapterHtml);
-                    }
-                });
-            }
-        });
+    computeNextPreviousChapter(bookId, chapter);
+    requestChapterText(bookId, chapter, getScripturesSuccess);
 };
 
 /*------------------------------------------------------------------------

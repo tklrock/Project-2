@@ -8,9 +8,7 @@
 /*-------------------------------------------------------------------
  *                      IMPORTS
  */
-import {
-    htmlAnchor, htmlDiv, htmlElement, htmlLink
-} from "./HtmlHelper.js";
+import Html from "./HtmlHelper.js";
 import { injectBreadcrumbs } from "./Breadcrumbs.js";
 
 /*-------------------------------------------------------------------
@@ -89,7 +87,7 @@ const bookChapterValid = function (bookId, chapter) {
 };
 
 const booksGrid = function (volume) {
-    return htmlDiv({
+    return Html.div({
         classKey: CLASS_BOOKS,
         content: booksGridContent(volume)
     });
@@ -99,7 +97,7 @@ const booksGridContent = function (volume) {
     let gridContent = "";
 
     volume.books.forEach(function (book) {
-        gridContent += htmlLink({
+        gridContent += Html.link({
             classKey: CLASS_BUTTON,
             content: book.gridName,
             href: `#${volume.id}:${book.id}`,
@@ -129,10 +127,10 @@ const cacheBooks = function (callback) {
 };
 
 const chaptersGrid = function (book) {
-    return htmlDiv({
+    return Html.div({
         classKey: CLASS_VOLUME,
-        content: htmlElement(TAG_HEADER5, book.fullName)
-    }) + htmlDiv({
+        content: Html.element(TAG_HEADER5, book.fullName)
+    }) + Html.div({
         classKey: CLASS_BOOKS,
         content: chaptersGridContent(book)
     });
@@ -143,7 +141,7 @@ const chaptersGridContent = function (book) {
     let chapter = 1;
 
     while (chapter <= book.numChapters) {
-        gridContent += htmlLink({
+        gridContent += Html.link({
             classKey: `${CLASS_BUTTON} ${CLASS_CHAPTER}`,
             content: chapter,
             href: `#0:${book.id}:${chapter}`,
@@ -234,7 +232,7 @@ const navigateBook = function (bookId) {
     if (book.numChapters <= 1) {
         navigateChapter(bookId, book.numChapters);
     } else {
-        document.getElementById(DIV_SCRIPTURES).innerHTML = htmlDiv({
+        document.getElementById(DIV_SCRIPTURES).innerHTML = Html.div({
             content: chaptersGrid(book),
             id: DIV_SCRIPTURES_NAVIGATOR
         });
@@ -243,7 +241,7 @@ const navigateBook = function (bookId) {
 };
 
 const navigateHome = function (volumeId) {
-    document.getElementById(DIV_SCRIPTURES).innerHTML = htmlDiv({
+    document.getElementById(DIV_SCRIPTURES).innerHTML = Html.div({
         content: volumesGridContent(volumeId),
         id: DIV_SCRIPTURES_NAVIGATOR
     });
@@ -336,9 +334,9 @@ const volumesGridContent = function (volumeId) {
 
     volumes.forEach(function (volume) {
         if (volumeId === undefined || volumeId === volume.id) {
-            gridContent += htmlDiv({
+            gridContent += Html.div({
                 classKey: CLASS_VOLUME,
-                content: htmlAnchor(volume) + htmlElement(TAG_HEADER5, volume.fullName)
+                content: Html.anchor(volume) + Html.element(TAG_HEADER5, volume.fullName)
             });
 
             gridContent += booksGrid(volume);
