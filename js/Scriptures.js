@@ -9,9 +9,9 @@
  *                      IMPORTS
  */
 import {
-    htmlAnchor, htmlDiv, htmlElement, htmlLink, htmlListItem,
-    htmlListItemLink
+    htmlAnchor, htmlDiv, htmlElement, htmlLink
 } from "./HtmlHelper.js";
+import { injectBreadcrumbs } from "./Breadcrumbs.js";
 
 /*-------------------------------------------------------------------
  *                      CONSTANTS
@@ -20,13 +20,8 @@ const BOTTOM_PADDING = "<br /><br />";
 const CLASS_BOOKS = "books";
 const CLASS_BUTTON = "btn";
 const CLASS_CHAPTER = "chapter";
-const CLASS_ICON = "material-icons";
 const CLASS_VOLUME = "volume";
-const DIV_BREADCRUMBS = "crumbs";
 const DIV_SCRIPTURES_NAVIGATOR = "scripnav";
-const DIV_SCRIPTURES = "scriptures";
-const ICON_NEXT = "skip_next";
-const ICON_PREVIOUS = "skip_previous";
 const INDEX_FLAG = 11;
 const INDEX_LATITUDE = 3;
 const INDEX_LONGITUDE = 4;
@@ -35,10 +30,6 @@ const LAT_LON_PARSER = /\((.*),'(.*)',(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*),'(
 const MAX_ZOOM_LEVEL = 18;
 const MIN_ZOOM_LEVEL = 6;
 const TAG_HEADER5 = "h5";
-const TAG_LIST_ITEM = "li";
-const TAG_SPAN = "span";
-const TAG_UNORDERED_LIST = "ul";
-const TEXT_TOP_LEVEL = "The Scriptures";
 const URL_BASE = "https://scriptures.byu.edu/";
 const URL_BOOKS = `${URL_BASE}mapscrip/model/books.php`;
 const URL_SCRIPTURES = `${URL_BASE}mapscrip/mapgetscrip.php`;
@@ -51,9 +42,6 @@ const ZOOM_RATIO = 450;
 let books;
 let geoplaces = [];
 let gmMarkers = [];
-let requestedBookId;
-let requestedChapter;
-let requestedNextPrevious;
 let volumes;
 
 /*-------------------------------------------------------------------
@@ -214,19 +202,6 @@ const geoplaceIndex = function (latitude, longitude) {
     return -1;
 };
 
-const getScripturesSuccess = function (chapterHtml) {
-    let book = books[requestedBookId];
-
-    document.getElementById(DIV_SCRIPTURES).innerHTML = chapterHtml;
-
-    document.querySelectorAll(".navheading").forEach(function (element) {
-        element.innerHTML += `<div class="nextprev">${requestedNextPrevious}</div>`;
-    });
-
-    injectBreadcrumbs(volumeForId(book.parentBookId), book, requestedChapter);
-    setupMarkers();
-};
-
 const getJSON = function (url) {
     return fetch(url).then(function (response) {
         if (response.ok) {
@@ -243,31 +218,6 @@ const init = function (callback) {
         books = booksJson;
         cacheBooks(callback);
     });
-};
-
-const injectBreadcrumbs = function (volume, book, chapter) {
-    let crumbs = "";
-
-    if (volume === undefined) {
-        crumbs = htmlListItem(TEXT_TOP_LEVEL);
-    } else {
-        crumbs = htmlListItemLink(TEXT_TOP_LEVEL);
-
-        if (book === undefined) {
-            crumbs += htmlListItem(volume.fullName);
-        } else {
-            crumbs += htmlListItemLink(volume.fullName, volume.id);
-
-            if (chapter === undefined || chapter <= 0) {
-                crumbs += htmlListItem(book.tocName);
-            } else {
-                crumbs += htmlListItemLink(book.tocName, `${volume.id}:${book.id}`);
-                crumbs += htmlListItem(chapter);
-            }
-        }
-    }
-
-    document.getElementById(DIV_BREADCRUMBS).innerHTML = htmlElement(TAG_UNORDERED_LIST, crumbs);
 };
 
 const mergePlacename = function (placename, index) {
@@ -292,80 +242,12 @@ const navigateBook = function (bookId) {
     }
 };
 
-const navigateChapter = function (bookId, chapter) {
-    requestedBookId = bookId;
-    requestedChapter = chapter;
-
-    let nextPrev = previousChapter(bookId, chapter);
-
-    if (nextPrev === undefined) {
-        requestedNextPrevious = "";
-    } else {
-        requestedNextPrevious = nextPreviousMarkup(nextPrev, ICON_PREVIOUS);
-    }
-
-    nextPrev = nextChapter(bookId, chapter);
-
-    if (nextPrev !== undefined) {
-        requestedNextPrevious += nextPreviousMarkup(nextPrev, ICON_NEXT);
-    }
-
-    fetch(encodedScripturesUrlParameters(bookId, chapter))
-        .then(function (response) {
-            if (response.ok) {
-                response.text().then(function (chapterHtml) {
-                    if (typeof getScripturesSuccess === "function") {
-                        getScripturesSuccess(chapterHtml);
-                    }
-                });
-            }
-        });
-};
-
 const navigateHome = function (volumeId) {
     document.getElementById(DIV_SCRIPTURES).innerHTML = htmlDiv({
         content: volumesGridContent(volumeId),
         id: DIV_SCRIPTURES_NAVIGATOR
     });
     injectBreadcrumbs(volumeForId(volumeId));
-};
-
-const nextChapter = function (bookId, chapter) {
-    let book = books[bookId];
-
-    if (book !== undefined) {
-        if (chapter < book.numChapters) {
-            return [
-                bookId,
-                chapter + 1,
-                titleForBookChapter(book, chapter + 1)
-            ];
-        }
-
-        let nextBook = books[bookId + 1];
-
-        if (nextBook !== undefined) {
-            let nextChapterValue = 0;
-
-            if (nextBook.numChapters > 0) {
-                nextChapterValue = 1;
-            }
-
-            return [
-                nextBook.id,
-                nextChapterValue,
-                titleForBookChapter(nextBook, nextChapterValue)
-            ];
-        }
-    }
-};
-
-const nextPreviousMarkup = function (nextPrev, icon) {
-    return htmlLink({
-        content: htmlElement(TAG_SPAN, icon, CLASS_ICON),
-        href: `#0:${nextPrev[0]}:${nextPrev[1]}`,
-        title: nextPrev[2]
-    });
 };
 
 const onHashChanged = function () {
@@ -406,30 +288,6 @@ const onHashChanged = function () {
     }
 };
 
-const previousChapter = function (bookId, chapter) {
-    let book = books[bookId];
-
-    if (book !== undefined) {
-        if (chapter > 1) {
-            return [
-                bookId,
-                chapter - 1,
-                titleForBookChapter(book, chapter - 1)
-            ];
-        }
-
-        let previousBook = books[bookId - 1];
-
-        if (previousBook !== undefined) {
-            return [
-                previousBook.id,
-                previousBook.numChapters,
-                titleForBookChapter(previousBook, previousBook.numChapters)
-            ];
-        }
-    }
-};
-
 const setupMarkers = function () {
     if (gmMarkers.length > 0) {
         clearMarkers();
@@ -465,16 +323,6 @@ const showLocation = function (id, placename, latitude, longitude, viewLatitude,
     console.log(id, placename, latitude, longitude, viewLatitude, viewLongitude, viewTilt, viewRoll, viewHeading);
     map.panTo({ lat: latitude, lng: longitude });
     map.setZoom(Math.round(viewAltitude / ZOOM_RATIO));
-};
-
-const titleForBookChapter = function (book, chapter) {
-    if (book !== undefined) {
-        if (chapter > 0) {
-            return `${book.tocName} ${chapter}`;
-        }
-
-        return book.tocName;
-    }
 };
 
 const volumeForId = function (volumeId) {

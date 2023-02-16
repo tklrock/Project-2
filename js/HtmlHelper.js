@@ -1,8 +1,23 @@
-const htmlAnchor = function (volume) {
+/*========================================================================
+ * FILE:    HtmlHelper.js
+ * AUTHOR:  Stephen W. Liddle
+ * DATE:    Winter 2023
+ *
+ * DESCRIPTION: Module for building HTML elements (tags)
+ */
+/*------------------------------------------------------------------------
+ *                      CONSTANTS
+ */
+const TAG_LIST_ITEM = "li";
+
+/*------------------------------------------------------------------------
+ *                      EXPORTED FUNCTIONS
+ */
+const anchor = function (volume) {
     return `<a name="v${volume.id}" />`;
 };
 
-const htmlDiv = function (parameters) {
+const div = function (parameters) {
     let classString = "";
     let contentString = "";
     let idString = "";
@@ -22,7 +37,7 @@ const htmlDiv = function (parameters) {
     return `<div${idString}${classString}>${contentString}</div>`;
 };
 
-const htmlElement = function (tagName, content, classValue) {
+const element = function (tagName, content, classValue) {
     let classString = "";
 
     if (classValue !== undefined) {
@@ -32,7 +47,7 @@ const htmlElement = function (tagName, content, classValue) {
     return `<${tagName}${classString}>${content}</${tagName}>`;
 };
 
-const htmlLink = function (parameters) {
+const link = function (parameters) {
     let classString = "";
     let contentString = "";
     let hrefString = "";
@@ -62,12 +77,24 @@ const htmlLink = function (parameters) {
     return `<a${idString}${classString}${hrefString}${titleString}>${contentString}</a>`;
 };
 
-const htmlListItem = function (content) {
-    return htmlElement(TAG_LIST_ITEM, content);
+const listItem = function (content) {
+    return element(TAG_LIST_ITEM, content);
 };
 
-const htmlListItemLink = function (content, href = "") {
-    return htmlListItem(htmlLink({ content, href: `#${href}` }));
+const listItemLink = function (content, href = "") {
+    return listItem(link({ content, href: `#${href}` }));
 };
 
-export { htmlAnchor, htmlDiv, htmlElement, htmlLink, htmlListItem, htmlListItemLink };
+/*------------------------------------------------------------------------
+ *                      EXPORTS
+ */
+const Html = {
+    anchor,
+    div,
+    element,
+    link,
+    listItem,
+    listItemLink
+}
+
+export default Object.freeze(Html);
