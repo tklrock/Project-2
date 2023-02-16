@@ -8,7 +8,10 @@
 /*------------------------------------------------------------------------
  *                      IMPORTS
  */
-import { requestChapterText } from "./MapScripApi.js";
+import { injectBreadcrumbs } from "./Breadcrumbs.js";
+import Html from "./HtmlHelper.js";
+import { setupMarkers } from "./MapHelper.js";
+import { books, requestChapterText, volumeForId } from "./MapScripApi.js";
 import { DIV_SCRIPTURES } from "./Navigation.js";
 
 /*------------------------------------------------------------------------
@@ -89,8 +92,8 @@ const nextChapter = function (bookId, chapter) {
 };
 
 const nextPreviousMarkup = function (nextPrev, icon) {
-    return htmlLink({
-        content: htmlElement(TAG_SPAN, icon, CLASS_ICON),
+    return Html.link({
+        content: Html.element(TAG_SPAN, icon, CLASS_ICON),
         href: `#0:${nextPrev[0]}:${nextPrev[1]}`,
         title: nextPrev[2]
     });

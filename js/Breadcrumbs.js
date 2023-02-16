@@ -40,7 +40,7 @@ const injectBreadcrumbs = function (volume, book, chapter) {
         }
     }
 
-    document.getElementById(DIV_BREADCRUMBS).innerHTML = htmlElement(TAG_UNORDERED_LIST, crumbs);
+    document.getElementById(DIV_BREADCRUMBS).innerHTML = Html.element(TAG_UNORDERED_LIST, crumbs);
 };
 
 /*------------------------------------------------------------------------
