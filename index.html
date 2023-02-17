@@ -48,7 +48,7 @@
     </script>
 
     <script type="module">
-        import("./js/Scriptures.js").then(module => {
+        import("./js/Scriptures.js").then(scriptures => {
             function ready(readyListener) {
                 if (document.readyState !== "loading") {
                     readyListener();
@@ -58,9 +58,9 @@
             }
             
             ready(function () {
-                module.init(() => { module.onHashChanged(); });
-                window.showLocation = module.showLocation;
-                window.addEventListener("hashchange", module.onHashChanged);
+                scriptures.init(() => { scriptures.onHashChanged(); });
+                window.showLocation = scriptures.showLocation;
+                window.addEventListener("hashchange", scriptures.onHashChanged);
             });
         });
     </script>

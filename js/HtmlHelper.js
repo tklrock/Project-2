@@ -88,6 +88,11 @@ const listItemLink = function (content, href = "") {
 /*------------------------------------------------------------------------
  *                      EXPORTS
  */
+// Note that by exporting an object, we give an explicit "namespace" to
+// the methods of this module.  Here we use the name Html, but in general,
+// the client who imports the object can use any name they'd like.  That
+// name becomes the prefix for each method, e.g. Html.anchor(...),
+// Html.div(...) and so forth.
 const Html = {
     anchor,
     div,

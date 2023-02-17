@@ -71,24 +71,35 @@ const getJSON = function (url) {
 *                      EXPORTED FUNCTIONS
 */
 const init = function (callback) {
-    Promise.all([getJSON(URL_VOLUMES), getJSON(URL_BOOKS)]).then(function (jsonResults) {
-        const [volumesJson, booksJson] = jsonResults;
+    Promise.all([getJSON(URL_VOLUMES), getJSON(URL_BOOKS)])
+        .then(function (jsonResults) {
+            const [volumesJson, booksJson] = jsonResults;
 
-        volumes = volumesJson;
-        books = booksJson;
-        cacheBooks(callback);
-    });
+            volumes = volumesJson;
+            books = booksJson;
+            cacheBooks(callback);
+        });
 };
 
-const requestChapterText = function (bookId, chapter, success) {
+const requestChapterText = function (bookId, chapter, success, failure) {
     fetch(encodedScripturesUrlParameters(bookId, chapter))
         .then(function (response) {
             if (response.ok) {
-                response.text().then(function (chapterHtml) {
-                    if (typeof success === "function") {
-                        success(chapterHtml);
-                    }
-                });
+                response.text()
+                    .then(function (chapterHtml) {
+                        if (typeof success === "function") {
+                            success(chapterHtml);
+                        }
+                    });
+            } else {
+                if (typeof failure === "function") {
+                    failure(`Network failure: ${response.statusText}`);
+                }
+            }
+        })
+        .catch(function (error) {
+            if (typeof failure === "function") {
+                failure(error);
             }
         });
 };

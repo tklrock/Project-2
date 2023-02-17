@@ -48,6 +48,13 @@ const computeNextPreviousChapter = function (bookId, chapter) {
     }
 };
 
+const getScripturesFailure = function (error) {
+    const message = error.message || error;
+
+    document.getElementById(DIV_SCRIPTURES).innerHTML
+        = `Unable to retrieve chapter text (${message})`;
+};
+
 const getScripturesSuccess = function (chapterHtml) {
     let book = books[requestedBookId];
 
@@ -141,7 +148,7 @@ const navigateChapter = function (bookId, chapter) {
     requestedChapter = chapter;
 
     computeNextPreviousChapter(bookId, chapter);
-    requestChapterText(bookId, chapter, getScripturesSuccess);
+    requestChapterText(bookId, chapter, getScripturesSuccess, getScripturesFailure);
 };
 
 /*------------------------------------------------------------------------

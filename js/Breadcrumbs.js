@@ -5,7 +5,9 @@
  *
  * DESCRIPTION: Module for managing breadcrumb navigation
  */
-
+/*------------------------------------------------------------------------
+ *                      IMPORTS
+ */
 import Html from "./HtmlHelper.js";
 
 /*------------------------------------------------------------------------
@@ -34,13 +36,17 @@ const injectBreadcrumbs = function (volume, book, chapter) {
             if (chapter === undefined || chapter <= 0) {
                 crumbs += Html.listItem(book.tocName);
             } else {
-                crumbs += Html.listItemLink(book.tocName, `${volume.id}:${book.id}`);
+                crumbs += Html.listItemLink(
+                    book.tocName,
+                    `${volume.id}:${book.id}`
+                );
                 crumbs += Html.listItem(chapter);
             }
         }
     }
 
-    document.getElementById(DIV_BREADCRUMBS).innerHTML = Html.element(TAG_UNORDERED_LIST, crumbs);
+    document.getElementById(DIV_BREADCRUMBS).innerHTML
+        = Html.element(TAG_UNORDERED_LIST, crumbs);
 };
 
 /*------------------------------------------------------------------------

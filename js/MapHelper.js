@@ -95,19 +95,23 @@ const mergePlacename = function (placename, index) {
     }
 };
 
+const zoomLevelForViewAltitude = function (altitude) {
+    let zoomLevel = Math.round(Number(altitude) / ZOOM_RATIO);
+
+    if (zoomLevel < MIN_ZOOM_LEVEL) {
+        zoomLevel = MIN_ZOOM_LEVEL;
+    } else if (zoomLevel > MAX_ZOOM_LEVEL) {
+        zoomLevel = MAX_ZOOM_LEVEL;
+    }
+
+    return zoomLevel;
+};
+
 const zoomMapToFitMarkers = function (matches) {
     if (gmMarkers.length > 0) {
         if (gmMarkers.length === 1 && matches) {
             // When there's exactly one marker, add it and zoom to it
-            let zoomLevel = Math.round(Number(matches[9]) / ZOOM_RATIO);
-
-            if (zoomLevel < MIN_ZOOM_LEVEL) {
-                zoomLevel = MIN_ZOOM_LEVEL;
-            } else if (zoomLevel > MAX_ZOOM_LEVEL) {
-                zoomLevel = MAX_ZOOM_LEVEL;
-            }
-
-            map.setZoom(zoomLevel);
+            map.setZoom(zoomLevelForViewAltitude(matches[9]));
             map.panTo(gmMarkers[0].position);
         } else {
             let bounds = new google.maps.LatLngBounds();
@@ -156,10 +160,12 @@ const setupMarkers = function () {
     zoomMapToFitMarkers(matches);
 };
 
-const showLocation = function (id, placename, latitude, longitude, viewLatitude, viewLongitude, viewTilt, viewRoll, viewAltitude, viewHeading) {
-    console.log(id, placename, latitude, longitude, viewLatitude, viewLongitude, viewTilt, viewRoll, viewHeading);
+const showLocation = function (
+    id, placename, latitude, longitude, viewLatitude, viewLongitude,
+    viewTilt, viewRoll, viewAltitude, viewHeading
+) {
     map.panTo({ lat: latitude, lng: longitude });
-    map.setZoom(Math.round(viewAltitude / ZOOM_RATIO));
+    map.setZoom(zoomLevelForViewAltitude(viewAltitude));
 };
 
 /*------------------------------------------------------------------------
